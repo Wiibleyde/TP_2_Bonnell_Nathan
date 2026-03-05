@@ -10,6 +10,13 @@ app.use(logger);
 
 app.use('/api/users', userRoutes);
 
+app.get('/teapot', (req, res) => {
+    res.status(418).json({
+        message: "I'm a teapot ☕",
+        hint: "RFC 2324 - Hyper Text Coffee Pot Control Protocol",
+    });
+});
+
 app.use(errorHandler);
 
 app.listen(3001, () => {
