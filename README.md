@@ -8,17 +8,40 @@ API REST développée avec **Bun**, **Express** et **TypeScript** permettant de 
 
 ## Installation
 
+### Backend
 ```bash
+cd backend
+bun install
+```
+
+### Frontend
+```bash
+cd frontend
 bun install
 ```
 
 ## Lancement
 
+### Avec Docker Compose (recommandé)
 ```bash
-bun run index.ts
+docker-compose up
 ```
 
+### Manuellement
+
+#### Backend
+```bash
+cd backend
+bun run index.ts
+```
 Le serveur démarre sur le port **3001**. L'API est accessible à l'adresse `http://localhost:3001/api/users`.
+
+#### Frontend (dans un autre terminal)
+```bash
+cd frontend
+bun run dev
+```
+L'application est accessible à l'adresse `http://localhost:5173`.
 
 ## Endpoints
 
