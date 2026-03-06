@@ -1,62 +1,122 @@
-const users: User[] = [
-    {
-        id: 1,
-        name: 'Nathan Bonnell',
-        email: 'nathan@bonnell.fr',
-        role: 'admin',
-        createdAt: new Date()
-    },
-    {
-        id: 2,
-        name: 'Mathéo Lang',
-        email: 'matheo.lang@icloud.com',
-        role: 'user',
-        createdAt: new Date()
-    },
-    {
-        id: 3,
-        name: 'Lukas Portier',
-        email: 'JSPASON@EMAIL.ALED',
-        role: 'user',
-        createdAt: new Date()
-    }
-];
+import mongoose, { Schema, Document } from 'mongoose';
 
-const getNextUserId = (): number => {
-    if (users.length === 0) return 1;
-    return Math.max(...users.map(u => u.id)) + 1;
-};
+interface IUser extends Document {
+    name: string;
+    email: string;
+    role: 'admin' | 'user';
+    createdAt: Date;
+}
+
+const userSchema = new Schema<IUser>({
+    name: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+        lowercase: true
+    },
+    role: {
+        type: String,
+        enum: ['admin', 'user'],
+        default: 'user'
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
+});
+
+// TypeScript equivalent of: module.exports = mongoose.model('User', userSchema)
+const UserModel = mongoose.model<IUser>('User', userSchema);
+
+export default UserModel;
 
 export const isValidRole = (role: unknown): role is User['role'] =>
     role === 'admin' || role === 'user';
 
-export const findAll = (role?: User['role']): User[] =>
-    role ? users.filter(u => u.role === role) : [...users];
-
-export const findById = (id: number): User | undefined =>
-    users.find(u => u.id === id);
-
-export const emailExists = (email: string, excludeId?: number): boolean =>
-    users.some(u => u.email === email && u.id !== excludeId);
-
-export const create = (data: Omit<User, 'id' | 'createdAt'>): User => {
-    const newUser: User = { id: getNextUserId(), ...data, createdAt: new Date() };
-    users.push(newUser);
-    return newUser;
+export const findAll = async (role?: User['role']): Promise<User[]> => {
+    try {
+        const query = role ? { role } : {};
+        const users = await UserModel.find(query).lean();
+        return users.map(u => ({
+            _id: u._id.toString(),
+            name: u.name,
+            email: u.email,
+            role: u.role as User['role'],
+            createdAt: u.createdAt
+        }));
+    } catch (error) {
+        return [];
+    }
 };
 
-export const update = (id: number, data: Partial<Pick<User, 'name' | 'email' | 'role'>>): User | null => {
-    const user = users.find(u => u.id === id);
-    if (!user) return null;
-    if (data.name) user.name = data.name;
-    if (data.email) user.email = data.email;
-    if (data.role) user.role = data.role;
-    return user;
+export const findById = async (id: string): Promise<User | null> => {
+    try {
+        const user = await UserModel.findById(id).lean();
+        if (!user) return null;
+        return {
+            _id: user._id.toString(),
+            name: user.name,
+            email: user.email,
+            role: user.role as User['role'],
+            createdAt: user.createdAt
+        };
+    } catch (error) {
+        return null;
+    }
 };
 
-export const remove = (id: number): boolean => {
-    const index = users.findIndex(u => u.id === id);
-    if (index === -1) return false;
-    users.splice(index, 1);
-    return true;
+export const emailExists = async (email: string, excludeId?: string): Promise<boolean> => {
+    try {
+        const query: Record<string, unknown> = { email: email.toLowerCase() };
+        if (excludeId) query['_id'] = { $ne: excludeId };
+        const user = await UserModel.findOne(query);
+        return user !== null;
+    } catch (error) {
+        return false;
+    }
+};
+
+export const create = async (data: Omit<User, '_id' | 'createdAt'>): Promise<User> => {
+    try {
+        const newUser = await UserModel.create(data);
+        return {
+            _id: newUser._id.toString(),
+            name: newUser.name,
+            email: newUser.email,
+            role: newUser.role,
+            createdAt: newUser.createdAt
+        };
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const update = async (id: string, data: Partial<Pick<User, 'name' | 'email' | 'role'>>): Promise<User | null> => {
+    try {
+        const user = await UserModel.findByIdAndUpdate(id, data, { returnDocument: 'after' }).lean();
+        if (!user) return null;
+        return {
+            _id: user._id.toString(),
+            name: user.name,
+            email: user.email,
+            role: user.role as User['role'],
+            createdAt: user.createdAt
+        };
+    } catch (error) {
+        return null;
+    }
+};
+
+export const remove = async (id: string): Promise<boolean> => {
+    try {
+        const result = await UserModel.findByIdAndDelete(id);
+        return result !== null;
+    } catch (error) {
+        return false;
+    }
 };

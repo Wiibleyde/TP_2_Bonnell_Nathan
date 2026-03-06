@@ -1,13 +1,9 @@
 import type express from 'express';
 import * as UserModel from '../models/user.model.ts';
 import { sendSuccess, sendError } from '../views/response.ts';
+import type { Request, Response } from 'express';
 
-const parseUserId = (id: string): number | null => {
-    const parsed = Number.parseInt(id, 10);
-    return Number.isNaN(parsed) ? null : parsed;
-};
-
-export const getUsers = (req: express.Request, res: express.Response): void => {
+export const getUsers = async (req: Request, res: Response): Promise<void> => {
     const { role } = req.query;
 
     if (role !== undefined && !UserModel.isValidRole(role)) {
@@ -15,19 +11,14 @@ export const getUsers = (req: express.Request, res: express.Response): void => {
         return;
     }
 
-    const filtered = UserModel.findAll(role as User['role'] | undefined);
+    const filtered = await UserModel.findAll(role as User['role'] | undefined);
     sendSuccess(res, 200, filtered, { count: filtered.length });
 };
 
-export const getUserById = (req: express.Request, res: express.Response): void => {
-    const userId = parseUserId(req.params['id'] as string);
+export const getUserById = async (req: Request, res: Response): Promise<void> => {
+    const userId = req.params['_id'] as string;
 
-    if (userId === null) {
-        sendError(res, 400, 'Invalid user id');
-        return;
-    }
-
-    const user = UserModel.findById(userId);
+    const user = await UserModel.findById(userId);
 
     if (user) {
         sendSuccess(res, 200, user);
@@ -36,7 +27,7 @@ export const getUserById = (req: express.Request, res: express.Response): void =
     }
 };
 
-export const createUser = (req: express.Request, res: express.Response): void => {
+export const createUser = async (req: Request, res: Response): Promise<void> => {
     const { name, email, role } = req.body ?? {};
 
     if (!name || !email || !role) {
@@ -49,23 +40,17 @@ export const createUser = (req: express.Request, res: express.Response): void =>
         return;
     }
 
-    if (UserModel.emailExists(email)) {
+    if (await UserModel.emailExists(email)) {
         sendError(res, 409, 'Email already in use');
         return;
     }
 
-    const newUser = UserModel.create({ name, email, role });
+    const newUser = await UserModel.create({ name, email, role });
     sendSuccess(res, 201, newUser, { message: 'User created successfully' });
 };
 
-export const updateUser = (req: express.Request, res: express.Response): void => {
-    const userId = parseUserId(req.params['id'] as string);
-
-    if (userId === null) {
-        sendError(res, 400, 'Invalid user id');
-        return;
-    }
-
+export const updateUser = async (req: Request, res: Response): Promise<void> => {
+    const userId = req.params['_id'] as string;
     const { name, email, role } = req.body ?? {};
 
     if (role !== undefined && !UserModel.isValidRole(role)) {
@@ -73,12 +58,12 @@ export const updateUser = (req: express.Request, res: express.Response): void =>
         return;
     }
 
-    if (email !== undefined && UserModel.emailExists(email, userId)) {
+    if (email !== undefined && await UserModel.emailExists(email, userId)) {
         sendError(res, 409, 'Email already in use');
         return;
     }
 
-    const user = UserModel.update(userId, { name, email, role });
+    const user = await UserModel.update(userId, { name, email, role });
 
     if (user) {
         sendSuccess(res, 200, user, { message: 'User updated successfully' });
@@ -87,15 +72,10 @@ export const updateUser = (req: express.Request, res: express.Response): void =>
     }
 };
 
-export const deleteUser = (req: express.Request, res: express.Response): void => {
-    const userId = parseUserId(req.params['id'] as string);
+export const deleteUser = async (req: Request, res: Response): Promise<void> => {
+    const userId = req.params['_id'] as string;
 
-    if (userId === null) {
-        sendError(res, 400, 'Invalid user id');
-        return;
-    }
-
-    const deleted = UserModel.remove(userId);
+    const deleted = await UserModel.remove(userId);
 
     if (deleted) {
         res.status(204).send();
