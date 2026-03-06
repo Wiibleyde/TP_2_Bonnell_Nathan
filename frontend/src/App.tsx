@@ -16,6 +16,7 @@ function App() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [filterRole, setFilterRole] = useState<'all' | 'admin' | 'user'>('all');
 
   useEffect(() => {
     userService.getAll()
@@ -69,6 +70,8 @@ function App() {
             error={error}
             onDelete={handleDelete}
             onEdit={setSelectedUser}
+            filterRole={filterRole}
+            onFilterChange={setFilterRole}
           />
         </div>
       </div>
