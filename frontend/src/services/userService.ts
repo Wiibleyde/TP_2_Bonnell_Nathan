@@ -5,9 +5,17 @@ const api = axios.create({
   baseURL: '/api',
 });
 
+interface PaginatedUsersResult {
+  page: number;
+  limit: number;
+  totalCount: number;
+  totalPages: number;
+  data: User[];
+}
+
 export const userService = {
   getAll() {
-    return api.get<User[]>('/users');
+    return api.get<PaginatedUsersResult>('/users');
   },
 
   getById(id: string) {
@@ -15,7 +23,7 @@ export const userService = {
   },
 
   create(data: User) {
-    return api.post<User>('/users', data);
+    return api.post<{ success: boolean; data: User; message?: string }>('/users', data);
   },
 
   update(id: string, data: User) {
