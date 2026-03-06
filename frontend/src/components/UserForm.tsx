@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import type { User } from '../types';
 
 interface UserFormData {
     name: string;
@@ -8,13 +9,24 @@ interface UserFormData {
 
 interface UserFormProps {
     onSubmit: (formData: UserFormData) => void;
+    selectedUser?: User | null;
+    onCancel?: () => void;
 }
 
 const initialState: UserFormData = { name: '', email: '', role: 'user' };
 
-function UserForm({ onSubmit }: UserFormProps) {
+function UserForm({ onSubmit, selectedUser, onCancel }: UserFormProps) {
     const [formData, setFormData] = useState<UserFormData>(initialState);
     const [validationError, setValidationError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (selectedUser) {
+            setFormData({ name: selectedUser.name, email: selectedUser.email, role: selectedUser.role });
+        } else {
+            setFormData(initialState);
+        }
+        setValidationError(null);
+    }, [selectedUser]);
 
     function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
         setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -30,7 +42,7 @@ function UserForm({ onSubmit }: UserFormProps) {
 
         setValidationError(null);
         onSubmit(formData);
-        setFormData(initialState);
+        if (!selectedUser) setFormData(initialState);
     }
 
     return (
@@ -51,7 +63,7 @@ function UserForm({ onSubmit }: UserFormProps) {
             }}
         >
             <h3 style={{ margin: '0 0 4px 0', fontSize: '0.85rem', letterSpacing: '0.12em', color: '#00d4ff', textTransform: 'uppercase' }}>
-                // CRÉER UN UTILISATEUR
+                {selectedUser ? '// MODIFIER UN UTILISATEUR' : '// CRÉER UN UTILISATEUR'}
             </h3>
 
             {validationError && (
@@ -117,8 +129,32 @@ function UserForm({ onSubmit }: UserFormProps) {
                 onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,212,255,0.1)')}
                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
             >
-                [ CRÉER ]
+                {selectedUser ? '[ METTRE À JOUR ]' : '[ CRÉER ]'}
             </button>
+            {selectedUser && onCancel && (
+                <button
+                    type="button"
+                    onClick={onCancel}
+                    style={{
+                        padding: '9px 18px',
+                        backgroundColor: 'transparent',
+                        color: '#94a3b8',
+                        border: '1px solid #94a3b855',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontWeight: 700,
+                        fontSize: '0.78rem',
+                        letterSpacing: '0.12em',
+                        fontFamily: "'JetBrains Mono', monospace",
+                        textTransform: 'uppercase',
+                        transition: 'background 0.15s',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(148,163,184,0.1)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                >
+                    [ ANNULER ]
+                </button>
+            )}
         </form>
     );
 }

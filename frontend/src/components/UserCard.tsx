@@ -3,9 +3,10 @@ import type { User } from '../types';
 interface UserCardProps {
     user: User;
     onDelete: (id: string) => void;
+    onEdit: (user: User) => void;
 }
 
-function UserCard({ user, onDelete }: UserCardProps) {
+function UserCard({ user, onDelete, onEdit }: UserCardProps) {
     const formattedDate = new Date(user.createdAt).toLocaleDateString('fr-FR', {
         year: 'numeric',
         month: 'long',
@@ -54,27 +55,48 @@ function UserCard({ user, onDelete }: UserCardProps) {
             <p style={{ margin: '10px 0 0 0', fontSize: '0.75rem', color: '#4a5568', letterSpacing: '0.03em' }}>
                 CRÉÉ {formattedDate.toUpperCase()}
             </p>
-            <button
-                onClick={() => onDelete(user._id)}
-                style={{
-                    marginTop: '14px',
-                    padding: '6px 14px',
-                    backgroundColor: 'transparent',
-                    color: '#ff3b5c',
-                    border: '1px solid #ff3b5c55',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontWeight: 600,
-                    fontSize: '0.78rem',
-                    letterSpacing: '0.08em',
-                    fontFamily: "'JetBrains Mono', monospace",
-                    transition: 'background 0.15s',
-                }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,59,92,0.12)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-            >
-                [ SUPPRIMER ]
-            </button>
+            <div style={{ display: 'flex', gap: '8px', marginTop: '14px' }}>
+                <button
+                    onClick={() => onEdit(user)}
+                    style={{
+                        padding: '6px 14px',
+                        backgroundColor: 'transparent',
+                        color: '#00d4ff',
+                        border: '1px solid #00d4ff55',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                        fontSize: '0.78rem',
+                        letterSpacing: '0.08em',
+                        fontFamily: "'JetBrains Mono', monospace",
+                        transition: 'background 0.15s',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,212,255,0.12)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                >
+                    [ MODIFIER ]
+                </button>
+                <button
+                    onClick={() => onDelete(user._id)}
+                    style={{
+                        padding: '6px 14px',
+                        backgroundColor: 'transparent',
+                        color: '#ff3b5c',
+                        border: '1px solid #ff3b5c55',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                        fontSize: '0.78rem',
+                        letterSpacing: '0.08em',
+                        fontFamily: "'JetBrains Mono', monospace",
+                        transition: 'background 0.15s',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,59,92,0.12)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                >
+                    [ SUPPRIMER ]
+                </button>
+            </div>
         </div>
     );
 }

@@ -27,7 +27,7 @@ export const userService = {
   },
 
   update(id: string, data: User) {
-    return api.put<User>(`/users/${id}`, data);
+    return api.put<{ success: boolean; data: User; message?: string }>(`/users/${id}`, data);
   },
 
   remove(id: string) {

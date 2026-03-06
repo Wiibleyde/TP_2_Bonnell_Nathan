@@ -6,9 +6,10 @@ interface UserListProps {
     loading: boolean;
     error: string | null;
     onDelete: (id: string) => void;
+    onEdit: (user: User) => void;
 }
 
-function UserList({ users, loading, error, onDelete }: UserListProps) {
+function UserList({ users, loading, error, onDelete, onEdit }: UserListProps) {
     if (loading) {
         return <p style={{ textAlign: 'center', color: '#00d4ff', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em' }}>// CHARGEMENT...</p>;
     }
@@ -29,7 +30,7 @@ function UserList({ users, loading, error, onDelete }: UserListProps) {
             justifyContent: 'flex-start',
         }}>
             {users.map((user) => (
-                <UserCard key={user._id} user={user} onDelete={onDelete} />
+                <UserCard key={user._id} user={user} onDelete={onDelete} onEdit={onEdit} />
             ))}
         </div>
     );
