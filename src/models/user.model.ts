@@ -54,6 +54,54 @@ export const findAll = async (role?: User['role']): Promise<User[]> => {
     }
 };
 
+export type PaginatedUsersResult = {
+    page: number;
+    limit: number;
+    totalCount: number;
+    totalPages: number;
+    data: User[];
+};
+
+export const findAllPaginated = async (
+    page: number,
+    limit: number,
+    role?: User['role']
+): Promise<PaginatedUsersResult> => {
+    try {
+        const query = role ? { role } : {};
+        const skip = (page - 1) * limit;
+
+        const [users, totalCount] = await Promise.all([
+            UserModel.find(query).skip(skip).limit(limit).lean(),
+            UserModel.countDocuments(query)
+        ]);
+
+        const data = users.map(u => ({
+            _id: u._id.toString(),
+            name: u.name,
+            email: u.email,
+            role: u.role as User['role'],
+            createdAt: u.createdAt
+        }));
+
+        return {
+            page,
+            limit,
+            totalCount,
+            totalPages: Math.ceil(totalCount / limit),
+            data
+        };
+    } catch (error) {
+        return {
+            page,
+            limit,
+            totalCount: 0,
+            totalPages: 0,
+            data: []
+        };
+    }
+};
+
 export const findById = async (id: string): Promise<User | null> => {
     try {
         const user = await UserModel.findById(id).lean();

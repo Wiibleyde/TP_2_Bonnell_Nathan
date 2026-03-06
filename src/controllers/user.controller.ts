@@ -5,14 +5,33 @@ import type { Request, Response } from 'express';
 
 export const getUsers = async (req: Request, res: Response): Promise<void> => {
     const { role } = req.query;
+    const rawPage = req.query['page'];
+    const rawLimit = req.query['limit'];
+
+    const page = rawPage !== undefined ? Number(rawPage) : 1;
+    const limit = rawLimit !== undefined ? Number(rawLimit) : 10;
+
+    if (!Number.isInteger(page) || page < 1) {
+        sendError(res, 400, 'page must be a positive integer');
+        return;
+    }
+
+    if (!Number.isInteger(limit) || limit < 1) {
+        sendError(res, 400, 'limit must be a positive integer');
+        return;
+    }
 
     if (role !== undefined && !UserModel.isValidRole(role)) {
         sendError(res, 400, "role must be 'admin' or 'user'");
         return;
     }
 
-    const filtered = await UserModel.findAll(role as User['role'] | undefined);
-    sendSuccess(res, 200, filtered, { count: filtered.length });
+    const result = await UserModel.findAllPaginated(
+        page,
+        limit,
+        role as User['role'] | undefined
+    );
+    res.status(200).json(result);
 };
 
 export const getUserById = async (req: Request, res: Response): Promise<void> => {
