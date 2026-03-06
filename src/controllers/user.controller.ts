@@ -7,9 +7,13 @@ export const getUsers = async (req: Request, res: Response): Promise<void> => {
     const { role } = req.query;
     const rawPage = req.query['page'];
     const rawLimit = req.query['limit'];
+    const rawSearch = req.query['search'];
 
     const page = rawPage !== undefined ? Number(rawPage) : 1;
     const limit = rawLimit !== undefined ? Number(rawLimit) : 10;
+    const search = typeof rawSearch === 'string' && rawSearch.trim() !== ''
+        ? rawSearch.trim()
+        : undefined;
 
     if (!Number.isInteger(page) || page < 1) {
         sendError(res, 400, 'page must be a positive integer');
@@ -21,6 +25,11 @@ export const getUsers = async (req: Request, res: Response): Promise<void> => {
         return;
     }
 
+    if (rawSearch !== undefined && typeof rawSearch !== 'string') {
+        sendError(res, 400, 'search must be a string');
+        return;
+    }
+
     if (role !== undefined && !UserModel.isValidRole(role)) {
         sendError(res, 400, "role must be 'admin' or 'user'");
         return;
@@ -29,7 +38,8 @@ export const getUsers = async (req: Request, res: Response): Promise<void> => {
     const result = await UserModel.findAllPaginated(
         page,
         limit,
-        role as User['role'] | undefined
+        role as User['role'] | undefined,
+        search
     );
     res.status(200).json(result);
 };

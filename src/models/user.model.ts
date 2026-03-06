@@ -65,10 +65,20 @@ export type PaginatedUsersResult = {
 export const findAllPaginated = async (
     page: number,
     limit: number,
-    role?: User['role']
+    role?: User['role'],
+    search?: string
 ): Promise<PaginatedUsersResult> => {
     try {
-        const query = role ? { role } : {};
+        const query: Record<string, unknown> = {};
+
+        if (role) {
+            query['role'] = role;
+        }
+
+        if (search) {
+            query['name'] = new RegExp(search, 'i');
+        }
+
         const skip = (page - 1) * limit;
 
         const [users, totalCount] = await Promise.all([
