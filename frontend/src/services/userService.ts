@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { User } from '../types';
 
 const api = axios.create({
   baseURL: '/api',
@@ -6,19 +7,19 @@ const api = axios.create({
 
 export const userService = {
   getAll() {
-    return api.get('/users');
+    return api.get<User[]>('/users');
   },
 
   getById(id: string) {
-    return api.get(`/users/${id}`);
+    return api.get<User>(`/users/${id}`);
   },
 
-  create(data: unknown) {
-    return api.post('/users', data);
+  create(data: User) {
+    return api.post<User>('/users', data);
   },
 
-  update(id: string, data: unknown) {
-    return api.put(`/users/${id}`, data);
+  update(id: string, data: User) {
+    return api.put<User>(`/users/${id}`, data);
   },
 
   remove(id: string) {
