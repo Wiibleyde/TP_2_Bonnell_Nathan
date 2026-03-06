@@ -11,11 +11,12 @@ interface UserFormProps {
     onSubmit: (formData: UserFormData) => void;
     selectedUser?: User | null;
     onCancel?: () => void;
+    isSubmitting?: boolean;
 }
 
 const initialState: UserFormData = { name: '', email: '', role: 'user' };
 
-function UserForm({ onSubmit, selectedUser, onCancel }: UserFormProps) {
+function UserForm({ onSubmit, selectedUser, onCancel, isSubmitting }: UserFormProps) {
     const [formData, setFormData] = useState<UserFormData>(initialState);
     const [validationError, setValidationError] = useState<string | null>(null);
 
@@ -111,25 +112,27 @@ function UserForm({ onSubmit, selectedUser, onCancel }: UserFormProps) {
 
             <button
                 type="submit"
+                disabled={isSubmitting}
                 style={{
                     marginTop: '4px',
                     padding: '9px 18px',
                     backgroundColor: 'transparent',
-                    color: '#00d4ff',
-                    border: '1px solid #00d4ff',
+                    color: isSubmitting ? '#4a5568' : '#00d4ff',
+                    border: `1px solid ${isSubmitting ? '#4a5568' : '#00d4ff'}`,
                     borderRadius: '4px',
-                    cursor: 'pointer',
+                    cursor: isSubmitting ? 'not-allowed' : 'pointer',
                     fontWeight: 700,
                     fontSize: '0.78rem',
                     letterSpacing: '0.12em',
                     fontFamily: "'JetBrains Mono', monospace",
                     textTransform: 'uppercase',
-                    transition: 'background 0.15s',
+                    transition: 'background 0.15s, color 0.15s, border-color 0.15s',
+                    opacity: isSubmitting ? 0.5 : 1,
                 }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,212,255,0.1)')}
+                onMouseEnter={e => { if (!isSubmitting) e.currentTarget.style.background = 'rgba(0,212,255,0.1)'; }}
                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
             >
-                {selectedUser ? '[ METTRE À JOUR ]' : '[ CRÉER ]'}
+                {isSubmitting ? '[ ... ]' : selectedUser ? '[ METTRE À JOUR ]' : '[ CRÉER ]'}
             </button>
             {selectedUser && onCancel && (
                 <button

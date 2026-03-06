@@ -16,20 +16,22 @@ function UserCard({ user, onDelete, onEdit }: UserCardProps) {
     const isAdmin = user.role === 'admin';
 
     return (
-        <div style={{
-            border: `1px solid ${isAdmin ? '#a78bfa44' : '#1e3a5f'}`,
-            borderTop: `2px solid ${isAdmin ? '#a78bfa' : '#00d4ff'}`,
-            borderRadius: '6px',
-            boxShadow: isAdmin
-                ? '0 4px 24px rgba(167,139,250,0.1)'
-                : '0 4px 24px rgba(0,212,255,0.07)',
-            padding: '18px',
-            width: '300px',
-            backgroundColor: '#111827',
-            fontFamily: "'JetBrains Mono', monospace",
-            position: 'relative',
-            transition: 'box-shadow 0.2s',
-        }}>
+        <div
+            className="card-fadein"
+            style={{
+                border: `1px solid ${isAdmin ? '#a78bfa44' : '#1e3a5f'}`,
+                borderTop: `2px solid ${isAdmin ? '#a78bfa' : '#00d4ff'}`,
+                borderRadius: '6px',
+                boxShadow: isAdmin
+                    ? '0 4px 24px rgba(167,139,250,0.1)'
+                    : '0 4px 24px rgba(0,212,255,0.07)',
+                padding: '18px',
+                width: '300px',
+                backgroundColor: '#111827',
+                fontFamily: "'JetBrains Mono', monospace",
+                position: 'relative',
+                transition: 'box-shadow 0.2s',
+            }}>
             <div style={{ marginBottom: '10px' }}>
                 <span style={{
                     display: 'inline-block',

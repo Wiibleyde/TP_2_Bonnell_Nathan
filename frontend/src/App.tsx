@@ -17,6 +17,8 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [filterRole, setFilterRole] = useState<'all' | 'admin' | 'user'>('all');
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   useEffect(() => {
     userService.getAll()
@@ -26,6 +28,7 @@ function App() {
   }, []);
 
   async function handleSubmit(data: UserFormData) {
+    setIsSubmitting(true);
     if (selectedUser) {
       try {
         const res = await userService.update(selectedUser._id, data as User);
@@ -38,13 +41,17 @@ function App() {
       try {
         const res = await userService.create(data as User);
         setUsers((prev) => [...prev, res.data.data]);
+        setSuccessMessage('Utilisateur créé !');
+        setTimeout(() => setSuccessMessage(null), 2000);
       } catch {
         setError('Erreur lors de la création de l\'utilisateur.');
       }
     }
+    setIsSubmitting(false);
   }
 
   async function handleDelete(id: string) {
+    if (!window.confirm('Confirmer la suppression de cet utilisateur ?')) return;
     try {
       await userService.remove(id);
       setUsers((prev) => prev.filter((u) => u._id !== id));
@@ -62,7 +69,20 @@ function App() {
           onSubmit={handleSubmit}
           selectedUser={selectedUser}
           onCancel={() => setSelectedUser(null)}
+          isSubmitting={isSubmitting}
         />
+        {successMessage && (
+          <p style={{
+            marginTop: '10px',
+            color: '#00ff9d',
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: '0.82rem',
+            letterSpacing: '0.08em',
+            animation: 'fadeIn 0.3s ease',
+          }}>
+            ✓ {successMessage}
+          </p>
+        )}
         <div style={{ marginTop: '32px' }}>
           <UserList
             users={users}
