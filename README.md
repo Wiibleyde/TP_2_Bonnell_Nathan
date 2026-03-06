@@ -29,3 +29,7 @@ Le serveur démarre sur le port **3001**. L'API est accessible à l'adresse `htt
 | POST    | `/api/users`      | Créer un nouvel utilisateur         | Body : `name`, `email`, `role`          |
 | PUT     | `/api/users/:id`  | Modifier un utilisateur             | Body : `name`, `email`, `role` *(optionnels)* |
 | DELETE  | `/api/users/:id`  | Supprimer un utilisateur            | —                                       |
+
+## TP
+- [TP 2](./TP/TP2.md)
+- [TP 3](./TP/TP3.md)
